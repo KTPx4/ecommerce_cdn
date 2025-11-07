@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  cdn-image-service:
+    build: .
+    container_name: cdn-image-service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - API_VERSION=v1
+      - BASE_URL=http://localhost:3000
+      - API_KEY_SECRET=${API_KEY_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - MAX_FILE_SIZE=10485760
+      - ALLOWED_IMAGE_TYPES=image/jpeg,image/png,image/webp,image/gif
+      - IMAGE_QUALITY=80
+      - GENERATE_THUMBNAILS=true
+      - CORS_ORIGIN=*
+      - LOG_LEVEL=info
+    volumes:
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+    networks:
+      - cdn-network
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: cdn-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - cdn-image-service
+    networks:
+      - cdn-network
+
+networks:
+  cdn-network:
+    driver: bridge
+
+volumes:
+  storage:
+  logs:
