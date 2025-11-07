@@ -53,6 +53,18 @@ const imageIdValidation = [
 ];
 
 /**
+ * Image Path Validation
+ */
+const imagePathValidation = [
+    param('path')
+        .notEmpty()
+        .withMessage('Image path is required')
+        .isString()
+        .withMessage('Image path must be a string'),
+    handleValidationErrors,
+];
+
+/**
  * List Images Validation
  */
 const listImagesValidation = [
@@ -94,6 +106,7 @@ const imageSizeValidation = [
 module.exports = {
     uploadValidation,
     imageIdValidation,
+    imagePathValidation,
     listImagesValidation,
     imageSizeValidation,
     handleValidationErrors,

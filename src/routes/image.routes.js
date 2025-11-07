@@ -7,6 +7,7 @@ const { uploadLimiter, deleteLimiter } = require('../middleware/rate-limit.middl
 const {
     uploadValidation,
     imageIdValidation,
+    imagePathValidation,
     listImagesValidation,
     imageSizeValidation,
 } = require('../middleware/validation.middleware');
@@ -76,7 +77,7 @@ router.delete(
     '/:path(*)',
     authenticateApiKey,
     deleteLimiter,
-    imageIdValidation,
+    imagePathValidation,
     imageController.deleteImage
 );
 
